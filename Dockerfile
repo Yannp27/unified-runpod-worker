@@ -4,8 +4,11 @@ FROM runpod/pytorch:2.2.0-py3.10-cuda12.1.1-devel-ubuntu22.04
 
 WORKDIR /app
 
-# System deps
-RUN apt-get update && apt-get install -y git wget curl ffmpeg && rm -rf /var/lib/apt/lists/*
+# System deps (including SearXNG native deps)
+RUN apt-get update && apt-get install -y \
+    git wget curl ffmpeg \
+    libxml2-dev libxslt1-dev zlib1g-dev libffi-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 # Python deps (core)
 COPY requirements.txt .
