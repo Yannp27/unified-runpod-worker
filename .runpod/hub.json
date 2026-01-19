@@ -23,6 +23,14 @@
         ],
         "env": [
             {
+                "key": "OPENROUTER_API_KEY",
+                "input": {
+                    "name": "OpenRouter API Key",
+                    "type": "secret",
+                    "description": "For DeepSeek V3.2 Speciale (63% cheaper). Get from openrouter.ai"
+                }
+            },
+            {
                 "key": "ANTHROPIC_BASE_URL",
                 "input": {
                     "name": "Claude Proxy URL",

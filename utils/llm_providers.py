@@ -303,13 +303,128 @@ class GeminiProvider:
 
 
 # =============================================================================
+# OPENROUTER PROVIDER (DeepSeek V3.2 Speciale - Cheaper Output)
+# =============================================================================
+
+class OpenRouterProvider:
+    """
+    OpenRouter provider - access to DeepSeek V3.2 Speciale with cheaper output.
+    
+    Pricing (per 1M tokens):
+    - Input: $0.27
+    - Output: $0.41 (63% cheaper than direct API)
+    """
+    
+    provider_name = "openrouter"
+    
+    def __init__(
+        self,
+        api_key: Optional[str] = None,
+        default_model: str = "deepseek/deepseek-v3.2-speciale"
+    ):
+        self.api_key = api_key or os.environ.get("OPENROUTER_API_KEY")
+        self.endpoint = "https://openrouter.ai/api/v1"
+        self.default_model = default_model
+        self._session: Optional[aiohttp.ClientSession] = None
+    
+    async def _get_session(self) -> aiohttp.ClientSession:
+        if self._session is None or self._session.closed:
+            timeout = aiohttp.ClientTimeout(total=180)  # Longer for reasoning
+            self._session = aiohttp.ClientSession(timeout=timeout)
+        return self._session
+    
+    async def complete(
+        self,
+        messages: list[dict],
+        model: Optional[str] = None,
+        max_tokens: int = 4096,
+        temperature: float = 0.7,
+        **kwargs
+    ) -> LLMResponse:
+        if not self.api_key:
+            return LLMResponse(
+                text="",
+                model=model or self.default_model,
+                usage={},
+                success=False,
+                error="OPENROUTER_API_KEY not set"
+            )
+        
+        try:
+            session = await self._get_session()
+            
+            payload = {
+                "model": model or self.default_model,
+                "messages": messages,
+                "max_tokens": max_tokens,
+                "temperature": temperature,
+                **kwargs
+            }
+            
+            headers = {
+                "Authorization": f"Bearer {self.api_key}",
+                "Content-Type": "application/json",
+                "HTTP-Referer": "https://github.com/Yannp27/unified-runpod-worker",
+                "X-Title": "Unified RunPod Worker"
+            }
+            
+            async with session.post(
+                f"{self.endpoint}/chat/completions",
+                json=payload,
+                headers=headers
+            ) as resp:
+                if resp.status == 200:
+                    data = await resp.json()
+                    choice = data.get("choices", [{}])[0]
+                    return LLMResponse(
+                        text=choice.get("message", {}).get("content", ""),
+                        model=data.get("model", model or self.default_model),
+                        usage=data.get("usage", {}),
+                        success=True
+                    )
+                else:
+                    error = await resp.text()
+                    return LLMResponse(
+                        text="",
+                        model=model or self.default_model,
+                        usage={},
+                        success=False,
+                        error=f"HTTP {resp.status}: {error}"
+                    )
+        except Exception as e:
+            return LLMResponse(
+                text="",
+                model=model or self.default_model,
+                usage={},
+                success=False,
+                error=str(e)
+            )
+    
+    async def health_check(self) -> bool:
+        return self.api_key is not None
+    
+    async def close(self):
+        if self._session and not self._session.closed:
+            await self._session.close()
+
+
+# =============================================================================
 # REGISTRATION
 # =============================================================================
 
 def register_llm_providers():
     """Register all LLM providers with the registry."""
-    # DeepSeek via external vLLM endpoint
-    ProviderRegistry.register_llm("deepseek", DeepSeekProvider())
+    # OpenRouter for DeepSeek V3.2 Speciale (cheaper output)
+    if os.environ.get("OPENROUTER_API_KEY"):
+        ProviderRegistry.register_llm("deepseek", OpenRouterProvider())
+        print("[LLM] Registered DeepSeek via OpenRouter (V3.2 Speciale)")
+    else:
+        # Fallback to direct DeepSeek endpoint
+        ProviderRegistry.register_llm("deepseek", DeepSeekProvider())
+        print("[LLM] Registered DeepSeek (direct endpoint)")
+    
+    # Also register as explicit "openrouter" provider
+    ProviderRegistry.register_llm("openrouter", OpenRouterProvider())
     
     # Claude and Gemini via AG proxy
     ProviderRegistry.register_llm("claude", ClaudeProvider())
