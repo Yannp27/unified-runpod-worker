@@ -1,6 +1,6 @@
 {
     "title": "Unified RunPod Worker",
-    "description": "All-in-one AI worker: LangGraph swarm orchestration, DeepSeek/Claude LLM integration, Real-ESRGAN upscaling, background removal, keyframe interpolation, and bundled SearXNG search",
+    "description": "All-in-one AI worker: LangGraph swarm orchestration, DeepSeek/Claude LLM integration, Real-ESRGAN upscaling, background removal, keyframe interpolation. SearXNG via SEARXNG_URL.",
     "type": "serverless",
     "category": "image",
     "iconUrl": "https://raw.githubusercontent.com/Yannp27/unified-runpod-worker/main/icon.png",
@@ -55,6 +55,15 @@
                     "type": "string",
                     "description": "Primary LLM provider (deepseek, claude, gemini)",
                     "default": "claude"
+                }
+            },
+            {
+                "key": "SEARXNG_URL",
+                "input": {
+                    "name": "SearXNG URL",
+                    "type": "string",
+                    "description": "External SearXNG instance URL for web search",
+                    "default": ""
                 }
             },
             {
