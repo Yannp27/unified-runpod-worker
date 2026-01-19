@@ -1,20 +1,33 @@
-# Unified RunPod Worker with GPU support
+# Unified Worker: Image Processing + SearXNG + Orchestration
+# DeepSeek runs as separate RunPod vLLM endpoint
 FROM runpod/pytorch:2.1.0-py3.10-cuda11.8.0-runtime
 
 WORKDIR /app
 
-# Install system deps
-RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+# System deps
+RUN apt-get update && apt-get install -y git wget curl && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies
+# Python deps
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Pre-download rembg model (eliminates cold-start for image_tools)
-RUN python -c "from rembg import new_session; new_session('isnet-anime'); print('isnet-anime cached')"
+# Pre-cache image models (eliminates cold-start)
+RUN python -c "from rembg import new_session; new_session('isnet-anime')"
+RUN mkdir -p /models && \
+    wget -q -P /models https://github.com/xinntao/Real-ESRGAN/releases/download/v0.2.5.0/realesr-animevideov3.pth
 
-# Copy all code
+# SearXNG (bundled)
+RUN pip install searxng uvloop httpx[http2]
+COPY searxng_settings.yml /etc/searxng/settings.yml
+
+# Application code
 COPY . .
 
-# RunPod handler entrypoint
-CMD ["python", "-u", "handler.py"]
+# Environment
+ENV PYTHONUNBUFFERED=1
+ENV WORKER_TYPE=unified
+
+# Startup script
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
+CMD ["/start.sh"]

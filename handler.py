@@ -14,12 +14,13 @@ from typing import Dict, Any
 # PROJECT HANDLERS
 # =============================================================================
 
-from projects import pleasance, speedb04t, image_tools
+from projects import pleasance, speedb04t, image_tools, swarm
 
 PROJECT_HANDLERS = {
     "pleasance": pleasance.handle,
     "speedb04t": speedb04t.handle,
     "image_tools": image_tools.handle,
+    "swarm": swarm.handle,
 }
 
 # =============================================================================
