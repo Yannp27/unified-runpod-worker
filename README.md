@@ -2,14 +2,14 @@
 
 [![RunPod](https://api.runpod.io/badge/Yannp27/unified-runpod-worker)](https://console.runpod.io/hub/Yannp27/unified-runpod-worker)
 
-All-in-one AI serverless worker: LangGraph swarm orchestration, image processing, and bundled SearXNG search.
+All-in-one AI serverless worker: LangGraph swarm orchestration, image processing, and SearXNG web search.
 
 ## Features
 
 - **LangGraph Swarm**: Claude→DeepSeek→Claude delegation with checkpointing
 - **Image Processing**: Real-ESRGAN upscaling, rembg background removal
 - **Keyframe Interpolation**: SVD-based frame interpolation for animation
-- **Bundled SearXNG**: Free self-hosted web search
+- **SearXNG Integration**: External web search via SEARXNG_URL
 - **Provider Abstraction**: Hot-swap LLM/Search/Image providers via config
 
 ## Projects
@@ -60,6 +60,7 @@ All-in-one AI serverless worker: LangGraph swarm orchestration, image processing
 | `DEEPSEEK_URL` | DeepSeek vLLM endpoint URL |
 | `RUNPOD_API_KEY` | For inter-worker calls |
 | `DEFAULT_LLM_PROVIDER` | `deepseek`, `claude`, or `gemini` |
+| `SEARXNG_URL` | External SearXNG instance URL |
 
 ## Deployment
 
@@ -72,7 +73,7 @@ All-in-one AI serverless worker: LangGraph swarm orchestration, image processing
 ```
 RunPod/
 ├── .runpod/           # Hub configuration
-├── Dockerfile         # CUDA + SearXNG + models
+├── Dockerfile         # CUDA + models
 ├── handler.py         # Main dispatcher
 ├── projects/          # Project handlers
 │   ├── swarm.py       # LangGraph orchestration

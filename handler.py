@@ -10,6 +10,14 @@ import asyncio
 import runpod
 from typing import Dict, Any
 
+# Startup logging for RunPod Hub visibility
+print("=" * 60)
+print("[UNIFIED WORKER] Starting...")
+print(f"[UNIFIED WORKER] LLM Provider: {os.environ.get('DEFAULT_LLM_PROVIDER', 'claude')}")
+print(f"[UNIFIED WORKER] SearXNG URL: {os.environ.get('SEARXNG_URL', 'not set')}")
+print(f"[UNIFIED WORKER] Worker Type: {os.environ.get('WORKER_TYPE', 'unified')}")
+print("=" * 60)
+
 # =============================================================================
 # PROJECT HANDLERS
 # =============================================================================
