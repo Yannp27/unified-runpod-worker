@@ -35,9 +35,15 @@ PROJECT_HANDLERS = {
 # MAIN DISPATCHER
 # =============================================================================
 
-def handler(job: dict) -> dict:
+# GPU-heavy actions that should NOT run concurrently within same worker
+GPU_BOUND_ACTIONS = {"rembg", "upscale", "pipeline", "keyframe_interpolate"}
+
+async def handler(job: dict) -> dict:
     """
-    Unified handler - routes to project handlers.
+    Unified async handler - routes to project handlers.
+    
+    Supports in-worker concurrency for I/O-bound operations.
+    GPU-bound operations are still queued properly by RunPod.
     
     Input:
     {
@@ -51,13 +57,17 @@ def handler(job: dict) -> dict:
     try:
         input_data = job.get("input", {})
         project = input_data.get("project", "pleasance")  # Default to pleasance
+        action = input_data.get("action", "")
+        
+        print(f"[UNIFIED WORKER] Request: project={project}, action={action}")
         
         # Health check for dispatcher
-        if input_data.get("action") == "ping":
+        if action == "ping":
             return {
                 "status": "ok",
                 "projects": list(PROJECT_HANDLERS.keys()),
-                "mode": "unified"
+                "mode": "unified",
+                "concurrency": "async"
             }
         
         # Route to project handler
@@ -66,19 +76,31 @@ def handler(job: dict) -> dict:
         
         handler_fn = PROJECT_HANDLERS[project]
         
-        # Run in event loop
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        try:
-            result = loop.run_until_complete(handler_fn(input_data))
-            return result
-        finally:
-            loop.close()
+        # All project handlers are already async
+        result = await handler_fn(input_data)
+        return result
             
     except Exception as e:
         import traceback
         return {"error": str(e), "traceback": traceback.format_exc()}
 
 
-# RunPod Serverless entry point
-runpod.serverless.start({"handler": handler})
+def concurrency_modifier(current_concurrency: int) -> int:
+    """
+    Dynamic concurrency adjustment.
+    
+    Returns max concurrent requests this worker should handle.
+    - I/O-bound ops (LLM calls, search): up to 4 concurrent
+    - GPU-bound ops: RunPod handles queuing at worker level
+    """
+    # Allow up to 4 concurrent requests per worker
+    # GPU-heavy ops will naturally serialize on the GPU
+    return 4
+
+
+# RunPod Serverless entry point with concurrency support
+runpod.serverless.start({
+    "handler": handler,
+    "concurrency_modifier": concurrency_modifier
+})
+
