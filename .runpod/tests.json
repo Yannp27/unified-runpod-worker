@@ -1,0 +1,54 @@
+{
+    "tests": [
+        {
+            "name": "health_check",
+            "input": {
+                "project": "image_tools",
+                "action": "ping"
+            },
+            "timeout": 10000
+        },
+        {
+            "name": "rembg_test",
+            "input": {
+                "project": "image_tools",
+                "action": "rembg",
+                "image_base64": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+            },
+            "timeout": 60000
+        },
+        {
+            "name": "swarm_health",
+            "input": {
+                "project": "swarm",
+                "action": "health"
+            },
+            "timeout": 10000
+        }
+    ],
+    "config": {
+        "gpuTypeId": "NVIDIA GeForce RTX 4090",
+        "gpuCount": 1,
+        "env": [
+            {
+                "key": "ANTHROPIC_BASE_URL",
+                "value": "https://api.anthropic.com"
+            },
+            {
+                "key": "DEFAULT_LLM_PROVIDER",
+                "value": "claude"
+            }
+        ],
+        "allowedCudaVersions": [
+            "12.7",
+            "12.6",
+            "12.5",
+            "12.4",
+            "12.3",
+            "12.2",
+            "12.1",
+            "12.0",
+            "11.8"
+        ]
+    }
+}

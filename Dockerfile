@@ -5,7 +5,7 @@ FROM runpod/pytorch:2.1.0-py3.10-cuda11.8.0-runtime
 WORKDIR /app
 
 # System deps
-RUN apt-get update && apt-get install -y git wget curl && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y git wget curl ffmpeg && rm -rf /var/lib/apt/lists/*
 
 # Python deps
 COPY requirements.txt .

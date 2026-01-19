@@ -12,6 +12,12 @@ realesrgan>=0.3.0
 basicsr>=1.4.2
 torch>=2.0.0
 
+# Video/Animation (SVD)
+diffusers>=0.27.0
+transformers>=4.38.0
+accelerate>=0.27.0
+safetensors>=0.4.0
+
 # LangGraph (swarm orchestration)
 langgraph>=0.2.0
 langchain-core>=0.3.0

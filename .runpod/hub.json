@@ -1,0 +1,62 @@
+{
+    "title": "Unified RunPod Worker",
+    "description": "All-in-one AI worker: LangGraph swarm orchestration, DeepSeek/Claude LLM integration, Real-ESRGAN upscaling, background removal, keyframe interpolation, and bundled SearXNG search",
+    "type": "serverless",
+    "category": "image",
+    "iconUrl": "https://raw.githubusercontent.com/Yannp27/unified-runpod-worker/main/icon.png",
+    "config": {
+        "runsOn": "GPU",
+        "containerDiskInGb": 50,
+        "presets": [
+            {
+                "name": "Image Processing",
+                "defaults": {
+                    "DEFAULT_LLM_PROVIDER": "claude"
+                }
+            },
+            {
+                "name": "AI Swarm",
+                "defaults": {
+                    "DEFAULT_LLM_PROVIDER": "deepseek"
+                }
+            }
+        ],
+        "env": [
+            {
+                "key": "ANTHROPIC_BASE_URL",
+                "input": {
+                    "name": "Claude Proxy URL",
+                    "type": "string",
+                    "description": "URL for Claude API (direct or proxy)",
+                    "default": "https://api.anthropic.com"
+                }
+            },
+            {
+                "key": "DEEPSEEK_URL",
+                "input": {
+                    "name": "DeepSeek Endpoint",
+                    "type": "string",
+                    "description": "URL for DeepSeek vLLM endpoint",
+                    "default": ""
+                }
+            },
+            {
+                "key": "DEFAULT_LLM_PROVIDER",
+                "input": {
+                    "name": "Default LLM Provider",
+                    "type": "string",
+                    "description": "Primary LLM provider (deepseek, claude, gemini)",
+                    "default": "claude"
+                }
+            },
+            {
+                "key": "RUNPOD_API_KEY",
+                "input": {
+                    "name": "RunPod API Key",
+                    "type": "secret",
+                    "description": "For calling other RunPod endpoints"
+                }
+            }
+        ]
+    }
+}
