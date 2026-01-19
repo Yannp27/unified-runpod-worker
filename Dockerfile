@@ -7,17 +7,20 @@ WORKDIR /app
 # System deps
 RUN apt-get update && apt-get install -y git wget curl ffmpeg && rm -rf /var/lib/apt/lists/*
 
-# Python deps
+# Python deps (core)
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Real-ESRGAN (from git, not PyPI)
+RUN pip install --no-cache-dir basicsr realesrgan
 
 # Pre-cache image models (eliminates cold-start)
 RUN python -c "from rembg import new_session; new_session('isnet-anime')"
 RUN mkdir -p /models && \
     wget -q -P /models https://github.com/xinntao/Real-ESRGAN/releases/download/v0.2.5.0/realesr-animevideov3.pth
 
-# SearXNG (bundled)
-RUN pip install searxng uvloop httpx[http2]
+# SearXNG from git (not on PyPI)
+RUN pip install --no-cache-dir git+https://github.com/searxng/searxng.git
 COPY searxng_settings.yml /etc/searxng/settings.yml
 
 # Application code
