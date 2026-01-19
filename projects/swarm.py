@@ -12,14 +12,9 @@ from typing import TypedDict, Annotated, Optional, Literal
 from operator import add
 from dataclasses import dataclass
 
-# LangGraph imports
-try:
-    from langgraph.graph import StateGraph, END
-    from langgraph.checkpoint.memory import MemorySaver
-    LANGGRAPH_AVAILABLE = True
-except ImportError:
-    LANGGRAPH_AVAILABLE = False
-    print("[SWARM] LangGraph not installed, using fallback mode")
+# LangGraph - lazy import to avoid hanging on startup
+LANGGRAPH_AVAILABLE = None  # Checked lazily in build_swarm_graph()
+
 
 # Local imports
 import sys
@@ -235,8 +230,24 @@ Return ONLY JSON:
 
 def build_swarm_graph():
     """Build the LangGraph swarm with Claude→DeepSeek→Claude flow."""
+    global LANGGRAPH_AVAILABLE
+    
+    # Lazy import LangGraph
+    if LANGGRAPH_AVAILABLE is None:
+        try:
+            from langgraph.graph import StateGraph as LG_StateGraph, END as LG_END
+            from langgraph.checkpoint.memory import MemorySaver as LG_MemorySaver
+            LANGGRAPH_AVAILABLE = True
+        except ImportError:
+            LANGGRAPH_AVAILABLE = False
+            print("[SWARM] LangGraph not installed, using fallback mode")
+    
     if not LANGGRAPH_AVAILABLE:
         return None
+    
+    # Import again for use (already cached by Python)
+    from langgraph.graph import StateGraph, END
+    from langgraph.checkpoint.memory import MemorySaver
     
     graph = StateGraph(SwarmState)
     

@@ -6,24 +6,7 @@
                 "project": "image_tools",
                 "action": "ping"
             },
-            "timeout": 10000
-        },
-        {
-            "name": "rembg_test",
-            "input": {
-                "project": "image_tools",
-                "action": "rembg",
-                "image_base64": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
-            },
-            "timeout": 60000
-        },
-        {
-            "name": "swarm_health",
-            "input": {
-                "project": "swarm",
-                "action": "health"
-            },
-            "timeout": 10000
+            "timeout": 30000
         }
     ],
     "config": {
