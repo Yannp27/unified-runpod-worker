@@ -5,15 +5,16 @@
 set -e
 
 echo "[WORKER] Starting SearXNG..."
-python -m searx.webapp &
+cd /opt/searxng && python -m searx.webapp 2>&1 &
 SEARXNG_PID=$!
 
-# Wait for SearXNG
+# Wait for SearXNG (check search endpoint, no /healthz)
 for i in {1..30}; do
-    if curl -s http://localhost:8888/healthz > /dev/null 2>&1; then
+    if curl -s "http://localhost:8080/search?q=test&format=json" > /dev/null 2>&1; then
         echo "[WORKER] SearXNG ready!"
         break
     fi
+    echo "[WORKER] Waiting for SearXNG... ($i/30)"
     sleep 1
 done
 

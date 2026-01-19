@@ -23,9 +23,13 @@ RUN python -c "from rembg import new_session; new_session('isnet-anime')"
 RUN mkdir -p /models && \
     wget -q -P /models https://github.com/xinntao/Real-ESRGAN/releases/download/v0.2.5.0/realesr-animevideov3.pth
 
-# SearXNG from git (not on PyPI)
-RUN pip install --no-cache-dir git+https://github.com/searxng/searxng.git
+# SearXNG installation (proper method - clone + install deps)
+RUN git clone --depth 1 https://github.com/searxng/searxng.git /opt/searxng && \
+    cd /opt/searxng && \
+    pip install --no-cache-dir -e . && \
+    mkdir -p /etc/searxng
 COPY searxng_settings.yml /etc/searxng/settings.yml
+ENV SEARXNG_SETTINGS_PATH=/etc/searxng/settings.yml
 
 # Application code
 COPY . .
